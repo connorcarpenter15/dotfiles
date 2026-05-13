@@ -80,4 +80,6 @@ if command -v eza >/dev/null 2>&1; then
   alias ls='eza --color=always --icons=always --group-directories-first'
 fi
 
+[ -r "$HOME/.shellrc.local" ] && . "$HOME/.shellrc.local"
+
 unset -f _shellrc_prepend_path _shellrc_prepend_path_if_dir _shellrc_setup_homebrew 2>/dev/null || true

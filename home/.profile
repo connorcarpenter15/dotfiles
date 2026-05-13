@@ -19,10 +19,28 @@ _profile_setup_homebrew() {
   done
 }
 
+_profile_prepend_path() {
+  [ -n "$1" ] || return
+
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+_profile_prepend_path_if_dir() {
+  [ -d "$1" ] && _profile_prepend_path "$1"
+}
+
 _profile_setup_homebrew
 
 [ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
+_profile_prepend_path_if_dir "$HOME/bin"
+_profile_prepend_path_if_dir "$HOME/.local/bin"
+
+[ -r "$HOME/.profile.local" ] && . "$HOME/.profile.local"
+
 export PATH
 
-unset -f _profile_setup_homebrew 2>/dev/null || true
+unset -f _profile_setup_homebrew _profile_prepend_path _profile_prepend_path_if_dir 2>/dev/null || true
