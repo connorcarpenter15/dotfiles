@@ -4,6 +4,7 @@ add_newline = false
 command_timeout = 1000
 
 format = """
+$hostname\
 $directory\
 $git_branch\
 $git_commit\
@@ -41,6 +42,12 @@ vimcmd_symbol = "[❮](bold fg:76)"
 vimcmd_replace_one_symbol = "[▶](bold fg:76)"
 vimcmd_replace_symbol = "[▶](bold fg:76)"
 vimcmd_visual_symbol = "[V](bold fg:76)"
+
+[hostname]
+ssh_only = true
+format = "[$ssh_symbol$hostname]($style) "
+style = "fg:180"
+trim_at = "."
 
 [directory]
 format = "[$path]($style)[$read_only]($read_only_style) "
