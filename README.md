@@ -19,10 +19,11 @@ The install script only manages files listed in [`MANIFEST`](MANIFEST).
 
 Files managed by [`install`](install) are listed in [`MANIFEST`](MANIFEST). Currently:
 
-- Zsh and shell login files under `$HOME` (for example `.zshrc`, `.zshenv`,
-  `.zprofile`, `.profile`, `.bash_profile`, `.bashrc`)
+- Shell startup files under `$HOME` (for example `.zshrc`, `.zshenv`,
+  `.zprofile`, `.profile`, `.shellrc`, `.bash_profile`, `.bashrc`)
 - Starship prompt config: `~/.config/starship.toml`
 - Git config: `~/.gitconfig`
+- Codex global guidance: `~/.codex/AGENTS.md`
 - Ghostty terminal config: `~/.config/ghostty/config`
 
 ## What is excluded

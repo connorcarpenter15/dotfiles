@@ -2,8 +2,10 @@ home/.zshrc	.zshrc
 home/.zshenv	.zshenv
 home/.zprofile	.zprofile
 home/.profile	.profile
+home/.shellrc	.shellrc
 home/.bash_profile	.bash_profile
 home/.bashrc	.bashrc
 home/.gitconfig	.gitconfig
+home/.codex/AGENTS.md	.codex/AGENTS.md
 config/starship.toml	.config/starship.toml
 config/ghostty/config	.config/ghostty/config

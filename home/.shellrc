@@ -1,0 +1,54 @@
+# Shared interactive shell settings for zsh and Bash.
+
+_shellrc_prepend_path() {
+  [ -n "$1" ] || return
+
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+# Environment
+export EDITOR="${EDITOR:-nvim}"
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}"
+
+_shellrc_prepend_path "$PNPM_HOME"
+_shellrc_prepend_path "$HOME/.antigravity/antigravity/bin"
+export PATH
+
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+
+# Aliases
+alias q='exit'
+alias g='git'
+alias e='yazi'
+alias l='ls -al'
+alias la='ls -a'
+alias home='cd ~'
+alias n='nvim'
+alias v='nvim'
+alias n.='nvim .'
+alias pv='uv run nvim'
+alias ns='nvim -c "lua require('\''persistence'\'').load()"'
+alias lg='lazygit'
+alias gs='git status -s'
+alias gl="git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='trash -v'
+alias ping='ping -c 10'
+alias psa='btop -p 1'
+alias su='su - '
+alias pwsh='pwsh.exe'
+alias config='cd "$HOME/.config/nvim" && nvim'
+alias g++='g++ -std=c++20'
+alias mcserver='ssh -i "$HOME/.ssh/mudgies_server.key" ubuntu@141.148.62.216'
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --color=always --icons=always --group-directories-first'
+fi
+
+unset -f _shellrc_prepend_path 2>/dev/null || true
