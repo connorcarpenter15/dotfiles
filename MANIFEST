@@ -1,8 +1,9 @@
 home/.zshrc	.zshrc
-home/.p10k.zsh	.p10k.zsh
 home/.zshenv	.zshenv
 home/.zprofile	.zprofile
 home/.profile	.profile
 home/.bash_profile	.bash_profile
+home/.bashrc	.bashrc
 home/.gitconfig	.gitconfig
+config/starship.toml	.config/starship.toml
 config/ghostty/config	.config/ghostty/config

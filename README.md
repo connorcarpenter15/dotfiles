@@ -9,7 +9,7 @@ meant to be easy to fork, copy from, or use as a reference for your own setup.
 Review and customize the files before running [`install`](install), especially:
 
 - `home/.gitconfig` for Git user identity and URL preferences
-- `home/.p10k.zsh` for prompt layout and style
+- `config/starship.toml` for prompt layout and style
 - Shell startup files for local paths, environment variables, or machine-specific
   assumptions
 
@@ -20,8 +20,8 @@ The install script only manages files listed in [`MANIFEST`](MANIFEST).
 Files managed by [`install`](install) are listed in [`MANIFEST`](MANIFEST). Currently:
 
 - Zsh and shell login files under `$HOME` (for example `.zshrc`, `.zshenv`,
-  `.zprofile`, `.profile`, `.bash_profile`)
-- Powerlevel10k theme config: `~/.p10k.zsh`
+  `.zprofile`, `.profile`, `.bash_profile`, `.bashrc`)
+- Starship prompt config: `~/.config/starship.toml`
 - Git config: `~/.gitconfig`
 - Ghostty terminal config: `~/.config/ghostty/config`
 
@@ -32,6 +32,13 @@ Files managed by [`install`](install) are listed in [`MANIFEST`](MANIFEST). Curr
   you want another single-file config)
 
 ## Install
+
+Install [Starship](https://starship.rs/) before loading the shell config. On
+macOS with Homebrew:
+
+```sh
+brew install starship
+```
 
 After cloning:
 
