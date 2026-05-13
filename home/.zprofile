@@ -1,10 +1,28 @@
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[ -r "$HOME/.profile" ] && source "$HOME/.profile"
 
-# Add homebrew to beginning of PATH to overrride base macOS
-export PATH=/opt/homebrew/bin:$PATH
-export PATH=/usr/local/smlnj/bin:"$PATH"
-export PATH=/opt/homebrew/anaconda3/bin:"$PATH"
-export DBUS_SESSION_BUS_ADDRESS="unix:path=$DBUS_LAUNCHD_SESSION_BUS_SOCKET"
+_zprofile_prepend_path() {
+  [ -d "$1" ] || return
 
-# Add depot tools to PATH for Chromium
-export PATH="/Users/cmaccarp/depot_tools:$PATH"
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+# Optional machine-local tools.
+_zprofile_prepend_path /usr/local/smlnj/bin
+_zprofile_prepend_path "$HOME/depot_tools"
+_zprofile_prepend_path "$HOME/miniconda3/bin"
+_zprofile_prepend_path "$HOME/anaconda3/bin"
+_zprofile_prepend_path /opt/homebrew/miniconda3/bin
+_zprofile_prepend_path /opt/homebrew/anaconda3/bin
+_zprofile_prepend_path /usr/local/miniconda3/bin
+_zprofile_prepend_path /usr/local/anaconda3/bin
+
+if [ -n "${DBUS_LAUNCHD_SESSION_BUS_SOCKET:-}" ]; then
+  export DBUS_SESSION_BUS_ADDRESS="unix:path=$DBUS_LAUNCHD_SESSION_BUS_SOCKET"
+fi
+
+export PATH
+
+unset -f _zprofile_prepend_path 2>/dev/null || true

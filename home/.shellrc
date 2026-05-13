@@ -9,13 +9,42 @@ _shellrc_prepend_path() {
   esac
 }
 
+_shellrc_prepend_path_if_dir() {
+  [ -d "$1" ] && _shellrc_prepend_path "$1"
+}
+
+_shellrc_setup_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    eval "$(brew shellenv)"
+    return
+  fi
+
+  for brew in \
+    /opt/homebrew/bin/brew \
+    /usr/local/bin/brew \
+    /home/linuxbrew/.linuxbrew/bin/brew \
+    "$HOME/.linuxbrew/bin/brew"
+  do
+    if [ -x "$brew" ]; then
+      eval "$("$brew" shellenv)"
+      return
+    fi
+  done
+}
+
 # Environment
+_shellrc_setup_homebrew
+
 export EDITOR="${EDITOR:-nvim}"
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}"
+
+case "$(uname -s 2>/dev/null)" in
+  Darwin) export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}" ;;
+  *) export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}" ;;
+esac
 
 _shellrc_prepend_path "$PNPM_HOME"
-_shellrc_prepend_path "$HOME/.antigravity/antigravity/bin"
+_shellrc_prepend_path_if_dir "$HOME/.antigravity/antigravity/bin"
 export PATH
 
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -51,4 +80,4 @@ if command -v eza >/dev/null 2>&1; then
   alias ls='eza --color=always --icons=always --group-directories-first'
 fi
 
-unset -f _shellrc_prepend_path 2>/dev/null || true
+unset -f _shellrc_prepend_path _shellrc_prepend_path_if_dir _shellrc_setup_homebrew 2>/dev/null || true
