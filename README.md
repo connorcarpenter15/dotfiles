@@ -14,6 +14,8 @@ Review and customize the files before running [`install`](install), especially:
   assumptions
 
 The install script only manages files listed in [`MANIFEST`](MANIFEST).
+It also installs the bundled Ghostty terminfo entry into `~/.terminfo`, which
+helps remote hosts recognize `TERM=xterm-ghostty`.
 
 ## What is included
 
@@ -25,6 +27,7 @@ Files managed by [`install`](install) are listed in [`MANIFEST`](MANIFEST). Curr
 - Git config: `~/.gitconfig`
 - Codex global guidance: `~/.codex/AGENTS.md`
 - Ghostty terminal config: `~/.config/ghostty/config`
+- Ghostty terminfo: `xterm-ghostty` installed into `~/.terminfo`
 
 ## What is excluded
 
@@ -55,6 +58,12 @@ If you are already in the repository:
 ```sh
 chmod +x install
 ./install
+```
+
+You can also reinstall only the Ghostty terminfo entry:
+
+```sh
+bin/install-ghostty-terminfo
 ```
 
 Options:

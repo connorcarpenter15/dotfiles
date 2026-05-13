@@ -1,5 +1,6 @@
 #!/bin/sh
 # Symlink single-file configs from $HOME into this repository (see MANIFEST).
+# Also installs bundled user-local terminfo entries for remote hosts.
 set -eu
 
 REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
@@ -111,5 +112,13 @@ while IFS="$(printf '\t')" read -r repo_rel target_rel || [ -n "${repo_rel:-}" ]
 		status=1
 	fi
 done < "$MANIFEST"
+
+if [ -x "$REPO_ROOT/bin/install-ghostty-terminfo" ]; then
+	if ! "$REPO_ROOT/bin/install-ghostty-terminfo"; then
+		status=1
+	fi
+else
+	printf 'warning: skipping Ghostty terminfo install (missing helper)\n' >&2
+fi
 
 exit "$status"

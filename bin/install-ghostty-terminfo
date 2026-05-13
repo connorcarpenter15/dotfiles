@@ -1,0 +1,53 @@
+#!/bin/sh
+# Install Ghostty's terminfo entry for hosts that do not know xterm-ghostty.
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
+TERMINFO_SRC="$REPO_ROOT/terminfo/xterm-ghostty.terminfo"
+
+case "${1:-}" in
+	-h|--help)
+		printf 'Usage: %s\n' "$0"
+		printf 'Compiles %s into ${TERMINFO:-$HOME/.terminfo}.\n' "$TERMINFO_SRC"
+		exit 0
+		;;
+	'') ;;
+	*)
+		printf '%s: unknown option %s\n' "$0" "$1" >&2
+		exit 1
+		;;
+esac
+
+if [ ! -f "$TERMINFO_SRC" ]; then
+	printf '%s: missing terminfo source at %s\n' "$0" "$TERMINFO_SRC" >&2
+	exit 1
+fi
+
+if ! command -v tic >/dev/null 2>&1; then
+	printf '%s: tic is required to compile terminfo entries\n' "$0" >&2
+	exit 1
+fi
+
+if [ -n "${TERMINFO:-}" ]; then
+	TERMINFO_DIR=$TERMINFO
+else
+	if [ -z "${HOME:-}" ]; then
+		printf '%s: HOME is not set\n' "$0" >&2
+		exit 1
+	fi
+	TERMINFO_DIR=$HOME/.terminfo
+fi
+
+mkdir -p "$TERMINFO_DIR"
+tic -x -o "$TERMINFO_DIR" "$TERMINFO_SRC"
+
+if command -v infocmp >/dev/null 2>&1; then
+	if infocmp -A "$TERMINFO_DIR" -x xterm-ghostty >/dev/null 2>&1; then
+		printf 'installed terminfo: xterm-ghostty -> %s\n' "$TERMINFO_DIR"
+	else
+		printf '%s: warning: installed xterm-ghostty, but infocmp could not verify it\n' "$0" >&2
+	fi
+else
+	printf 'installed terminfo: xterm-ghostty -> %s (unverified; infocmp not found)\n' "$TERMINFO_DIR"
+fi
