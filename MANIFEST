@@ -1,0 +1,8 @@
+home/.zshrc	.zshrc
+home/.p10k.zsh	.p10k.zsh
+home/.zshenv	.zshenv
+home/.zprofile	.zprofile
+home/.profile	.profile
+home/.bash_profile	.bash_profile
+home/.gitconfig	.gitconfig
+config/ghostty/config	.config/ghostty/config

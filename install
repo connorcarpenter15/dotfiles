@@ -1,0 +1,115 @@
+#!/bin/sh
+# Symlink single-file configs from $HOME into this repository (see MANIFEST).
+set -eu
+
+REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+MANIFEST="$REPO_ROOT/MANIFEST"
+
+OVERWRITE_FROM_HOME=0
+FORCE=0
+
+for arg in "$@"; do
+	case "$arg" in
+	--overwrite-from-home) OVERWRITE_FROM_HOME=1 ;;
+	--force) FORCE=1 ;;
+	-h|--help)
+		printf 'Usage: %s [--overwrite-from-home] [--force]\n' "$0" >&2
+		exit 0
+		;;
+	*)
+		printf '%s: unknown option %s\n' "$0" "$arg" >&2
+		exit 1
+		;;
+	esac
+done
+
+if [ ! -f "$MANIFEST" ]; then
+	printf '%s: missing MANIFEST at %s\n' "$0" "$MANIFEST" >&2
+	exit 1
+fi
+
+if [ -z "${HOME:-}" ]; then
+	printf '%s: HOME is not set\n' "$0" >&2
+	exit 1
+fi
+
+# $1 repo relative path, $2 path relative to $HOME (no leading slash)
+link_one() {
+	_repo_rel=$1
+	_target_rel=$2
+	_repo_file="$REPO_ROOT/$_repo_rel"
+	_target="$HOME/$_target_rel"
+
+	mkdir -p "$(dirname "$_repo_file")"
+
+	# Bootstrap: copy from home into repo when repo file is missing
+	if [ ! -e "$_repo_file" ]; then
+		if [ -f "$_target" ] || [ -L "$_target" ]; then
+			if [ -L "$_target" ]; then
+				cp -pL "$_target" "$_repo_file" 2>/dev/null || cp -p "$_target" "$_repo_file"
+			else
+				cp -p "$_target" "$_repo_file"
+			fi
+			printf 'copied into repo: %s (from %s)\n' "$_repo_rel" "$_target"
+		elif [ ! -e "$_target" ]; then
+			printf '%s: error: neither repo file nor home file exists:\n  %s\n  %s\n' "$0" "$_repo_file" "$_target" >&2
+			return 1
+		else
+			printf '%s: error: cannot bootstrap %s from unsupported type at %s\n' "$0" "$_repo_file" "$_target" >&2
+			return 1
+		fi
+	fi
+
+	# Already linked to this repo
+	if [ -L "$_target" ]; then
+		_link_dest=$(readlink "$_target" || true)
+		if [ "$_link_dest" = "$_repo_file" ]; then
+			printf 'unchanged (already linked): %s\n' "$_target"
+			return 0
+		fi
+		if [ "$FORCE" -eq 1 ]; then
+			rm -f "$_target"
+			printf 'removed foreign symlink (--force): %s -> %s\n' "$_target" "$_link_dest"
+		else
+			printf 'warning: skipping %s (symlink -> %s, not %s). Use --force to replace.\n' "$_target" "$_link_dest" "$_repo_file" >&2
+			return 0
+		fi
+	fi
+
+	# Replace regular file with symlink
+	if [ -e "$_target" ]; then
+		if [ ! -f "$_target" ]; then
+			printf '%s: error: %s exists and is not a regular file\n' "$0" "$_target" >&2
+			return 1
+		fi
+		if ! cmp -s "$_target" "$_repo_file" 2>/dev/null; then
+			if [ "$OVERWRITE_FROM_HOME" -eq 1 ]; then
+				cp -p "$_target" "$_repo_file"
+				printf 'overwrote repo from home (--overwrite-from-home): %s\n' "$_repo_rel"
+			else
+				printf '%s: error: %s differs from %s\n' "$0" "$_target" "$_repo_file" >&2
+				printf '  Run with --overwrite-from-home to copy home -> repo, then link.\n' >&2
+				return 1
+			fi
+		fi
+		_bak="${_target}.pre-dotfiles-$(date +%Y%m%d-%H%M%S).bak"
+		mv "$_target" "$_bak"
+		printf 'backed up: %s -> %s\n' "$_target" "$_bak"
+	fi
+
+	mkdir -p "$(dirname "$_target")"
+	ln -sf "$_repo_file" "$_target"
+	printf 'linked: %s -> %s\n' "$_target" "$_repo_file"
+}
+
+status=0
+while IFS="$(printf '\t')" read -r repo_rel target_rel || [ -n "${repo_rel:-}" ]; do
+	case "${repo_rel:-}" in
+	''|'#'*) continue ;;
+	esac
+	if ! link_one "$repo_rel" "$target_rel"; then
+		status=1
+	fi
+done < "$MANIFEST"
+
+exit "$status"
