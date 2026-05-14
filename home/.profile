@@ -1,5 +1,17 @@
 # Shared login-shell environment.
 
+_profile_source_if_readable() {
+  [ -r "$1" ] && . "$1"
+}
+
+_profile_setup_nix() {
+  if [ -r /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  elif [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  fi
+}
+
 _profile_setup_homebrew() {
   if command -v brew >/dev/null 2>&1; then
     eval "$(brew shellenv)"
@@ -32,7 +44,17 @@ _profile_prepend_path_if_dir() {
   [ -d "$1" ] && _profile_prepend_path "$1"
 }
 
+_profile_setup_home_manager() {
+  _profile_source_if_readable "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+
+  if [ -n "${USER:-}" ]; then
+    _profile_source_if_readable "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
+  fi
+}
+
+_profile_setup_nix
 _profile_setup_homebrew
+_profile_setup_home_manager
 
 [ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
@@ -43,4 +65,4 @@ _profile_prepend_path_if_dir "$HOME/.local/bin"
 
 export PATH
 
-unset -f _profile_setup_homebrew _profile_prepend_path _profile_prepend_path_if_dir 2>/dev/null || true
+unset -f _profile_source_if_readable _profile_setup_nix _profile_setup_homebrew _profile_setup_home_manager _profile_prepend_path _profile_prepend_path_if_dir 2>/dev/null || true

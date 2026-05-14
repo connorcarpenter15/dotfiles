@@ -3,3 +3,6 @@
 *~
 *.bak
 .pre-dotfiles-*.bak
+result
+result-*
+.direnv/

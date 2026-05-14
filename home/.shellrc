@@ -13,6 +13,18 @@ _shellrc_prepend_path_if_dir() {
   [ -d "$1" ] && _shellrc_prepend_path "$1"
 }
 
+_shellrc_source_if_readable() {
+  [ -r "$1" ] && . "$1"
+}
+
+_shellrc_setup_nix() {
+  if [ -r /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  elif [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  fi
+}
+
 _shellrc_setup_homebrew() {
   if command -v brew >/dev/null 2>&1; then
     eval "$(brew shellenv)"
@@ -32,8 +44,18 @@ _shellrc_setup_homebrew() {
   done
 }
 
+_shellrc_setup_home_manager() {
+  _shellrc_source_if_readable "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+
+  if [ -n "${USER:-}" ]; then
+    _shellrc_source_if_readable "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
+  fi
+}
+
 # Environment
+_shellrc_setup_nix
 _shellrc_setup_homebrew
+_shellrc_setup_home_manager
 
 export EDITOR="${EDITOR:-nvim}"
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
@@ -82,4 +104,4 @@ fi
 
 [ -r "$HOME/.shellrc.local" ] && . "$HOME/.shellrc.local"
 
-unset -f _shellrc_prepend_path _shellrc_prepend_path_if_dir _shellrc_setup_homebrew 2>/dev/null || true
+unset -f _shellrc_prepend_path _shellrc_prepend_path_if_dir _shellrc_source_if_readable _shellrc_setup_nix _shellrc_setup_homebrew _shellrc_setup_home_manager 2>/dev/null || true

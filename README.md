@@ -1,87 +1,99 @@
 # dotfiles
 
-A small collection of single-file configuration files and an install script for
-symlinking them from `$HOME` and XDG config paths into this repository. This is
-meant to be easy to fork, copy from, or use as a reference for your own setup.
-
-## Before you install
-
-Review and customize the files before running [`install`](install), especially:
-
-- `home/.gitconfig` for Git user identity and URL preferences
-- `config/starship.toml` for prompt layout and style
-- Shell startup files for local paths, environment variables, or machine-specific
-  assumptions
-
-The install script only manages files listed in [`MANIFEST`](MANIFEST).
-It also installs the bundled Ghostty terminfo entry into `~/.terminfo`, which
-helps remote hosts recognize `TERM=xterm-ghostty`.
+Cross-platform dotfiles for bootstrapping a new macOS or Linux shell account
+with one command. The repository uses a small `./install` bootstrap plus a Nix
+flake with standalone Home Manager for package installation and config links.
 
 ## What is included
 
-Files managed by [`install`](install) are listed in [`MANIFEST`](MANIFEST). Currently:
+- Shell startup files for zsh and Bash
+- Git, Starship, Codex, and Ghostty config
+- Ghostty `xterm-ghostty` terminfo installation for remote hosts
+- Neovim config as a Git submodule at `external/nvim`
+- Home Manager packages for the shell and editor toolchain, including
+  `starship`, `neovim`, `fzf`, `fd`, `ripgrep`, `zoxide`, `direnv`, `lazygit`,
+  `eza`, `yazi`, `trash-cli`, `btop`, `git`, `delta`, and common Neovim
+  language servers, formatters, and linters
 
-- Shell startup files under `$HOME` (for example `.zshrc`, `.zshenv`,
-  `.zprofile`, `.profile`, `.shellrc`, `.bash_profile`, `.bashrc`)
-- Starship prompt config: `~/.config/starship.toml`
-- Git config: `~/.gitconfig`
-- Codex global guidance: `~/.codex/AGENTS.md`
-- Ghostty terminal config: `~/.config/ghostty/config`
-- Ghostty terminfo: `xterm-ghostty` installed into `~/.terminfo`
-
-## What is excluded
-
-- Neovim and other multi-file configs that live in their own repositories
-- Anything not listed in `MANIFEST` (add a line there and re-run `./install` if
-  you want another single-file config)
+The legacy manifest in [`MANIFEST`](MANIFEST) still describes the single-file
+configs. Nix/Home Manager is now the primary path when Nix is available.
 
 ## Install
 
-Install [Starship](https://starship.rs/) before loading the shell config. On
-macOS with Homebrew:
+Clone the repo:
 
 ```sh
-brew install starship
-```
-
-After cloning:
-
-```sh
-git clone <your-remote-url> ~/dotfiles
+git clone --recurse-submodules <your-remote-url> ~/dotfiles
 cd ~/dotfiles
-chmod +x install
 ./install
 ```
 
-If you are already in the repository:
+If you already cloned without submodules, `./install` will run:
 
 ```sh
-chmod +x install
-./install
+git submodule update --init --recursive
 ```
 
-You can also reinstall only the Ghostty terminfo entry:
+If Nix is installed, `./install` applies the Home Manager flake for the current
+platform. If Nix is missing, it applies the legacy symlinks, links the Neovim
+submodule when safe, installs Ghostty terminfo, and prints the official Nix
+installer command to run before rerunning `./install`.
+
+The bootstrap supports:
+
+- `aarch64-darwin`
+- `x86_64-darwin`
+- `aarch64-linux`
+- `x86_64-linux`
+
+## Neovim
+
+Neovim remains its own repository, nested here as a submodule:
+
+```sh
+external/nvim -> ../nvim.git
+```
+
+That relative URL lets Git reuse the same transport you used for this dotfiles
+repo, such as SSH or HTTPS. Home Manager links `external/nvim` to
+`~/.config/nvim`.
+
+If `~/.config/nvim` already exists as a separate checkout with uncommitted
+changes, `./install` refuses to replace it. Commit or stash those changes first,
+or run `./install --force` to back the directory up before linking the
+submodule.
+
+## Local Overrides
+
+Machine-specific settings should stay out of Git:
+
+- `~/.shellrc.local`
+- `~/.profile.local`
+
+These are sourced automatically when present.
+
+## Options
+
+- `--overwrite-from-home`: if a managed single-file config in `$HOME` differs
+  from this repo, copy home -> repo, then link.
+- `--force`: replace foreign symlinks and back up existing Neovim directories
+  before linking the submodule.
+
+## Manual Commands
+
+Apply Home Manager directly:
+
+```sh
+DOTFILES_DIR="$PWD" nix --extra-experimental-features nix-command --extra-experimental-features flakes \
+  run .#home-manager -- switch --flake .#aarch64-darwin --impure
+```
+
+Replace `aarch64-darwin` with your system from the supported list above. In
+practice, prefer `./install`; it handles platform detection, submodules, safe
+migration checks, and Ghostty terminfo.
+
+Reinstall only Ghostty terminfo:
 
 ```sh
 bin/install-ghostty-terminfo
 ```
-
-Options:
-
-- `--overwrite-from-home`: if a file in `$HOME` differs from the copy in this
-  repo, copy from home into the repo, then replace the home file with a symlink.
-  Without this flag, `install` exits with an error when content differs.
-- `--force`: if a target path is already a symlink pointing somewhere else,
-  remove it and point it at this repo.
-
-If a target does not exist yet, `install` creates parent directories and
-symlinks. If a target already exists as a normal file and differs from the repo,
-use `--overwrite-from-home` once after backing up anything important, or merge
-manually.
-
-## Adding another single-file config
-
-1. Add a tab-separated line to `MANIFEST`:
-   `path/inside/repo<TAB>path/relative/to/home` (for example
-   `config/foo/bar.toml` and `.config/foo/bar.toml`).
-2. Run `./install` again.

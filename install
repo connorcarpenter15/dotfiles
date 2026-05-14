@@ -1,24 +1,34 @@
 #!/bin/sh
-# Symlink single-file configs from $HOME into this repository (see MANIFEST).
-# Also installs bundled user-local terminfo entries for remote hosts.
+# Bootstrap this dotfiles checkout.
+#
+# With Nix available, this applies the Home Manager flake, which installs tools
+# and links configs. Without Nix, it falls back to the legacy manifest symlinks
+# and prints the official Nix install command for the next run.
 set -eu
 
 REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 MANIFEST="$REPO_ROOT/MANIFEST"
+NVIM_SOURCE="$REPO_ROOT/external/nvim"
+NVIM_TARGET="${HOME:-}/.config/nvim"
 
 OVERWRITE_FROM_HOME=0
 FORCE=0
+
+usage() {
+	printf 'Usage: %s [--overwrite-from-home] [--force]\n' "$0" >&2
+}
 
 for arg in "$@"; do
 	case "$arg" in
 	--overwrite-from-home) OVERWRITE_FROM_HOME=1 ;;
 	--force) FORCE=1 ;;
 	-h|--help)
-		printf 'Usage: %s [--overwrite-from-home] [--force]\n' "$0" >&2
+		usage
 		exit 0
 		;;
 	*)
 		printf '%s: unknown option %s\n' "$0" "$arg" >&2
+		usage
 		exit 1
 		;;
 	esac
@@ -33,6 +43,13 @@ if [ -z "${HOME:-}" ]; then
 	printf '%s: HOME is not set\n' "$0" >&2
 	exit 1
 fi
+
+backup_existing_path() {
+	_path=$1
+	_bak="${_path}.pre-dotfiles-$(date +%Y%m%d-%H%M%S).bak"
+	mv "$_path" "$_bak"
+	printf 'backed up: %s -> %s\n' "$_path" "$_bak"
+}
 
 # $1 repo relative path, $2 path relative to $HOME (no leading slash)
 link_one() {
@@ -72,8 +89,8 @@ link_one() {
 			rm -f "$_target"
 			printf 'removed foreign symlink (--force): %s -> %s\n' "$_target" "$_link_dest"
 		else
-			printf 'warning: skipping %s (symlink -> %s, not %s). Use --force to replace.\n' "$_target" "$_link_dest" "$_repo_file" >&2
-			return 0
+			printf '%s: error: %s is a symlink to %s, not %s. Use --force to replace.\n' "$0" "$_target" "$_link_dest" "$_repo_file" >&2
+			return 1
 		fi
 	fi
 
@@ -93,9 +110,7 @@ link_one() {
 				return 1
 			fi
 		fi
-		_bak="${_target}.pre-dotfiles-$(date +%Y%m%d-%H%M%S).bak"
-		mv "$_target" "$_bak"
-		printf 'backed up: %s -> %s\n' "$_target" "$_bak"
+		backup_existing_path "$_target"
 	fi
 
 	mkdir -p "$(dirname "$_target")"
@@ -103,22 +118,224 @@ link_one() {
 	printf 'linked: %s -> %s\n' "$_target" "$_repo_file"
 }
 
-status=0
-while IFS="$(printf '\t')" read -r repo_rel target_rel || [ -n "${repo_rel:-}" ]; do
-	case "${repo_rel:-}" in
-	''|'#'*) continue ;;
-	esac
-	if ! link_one "$repo_rel" "$target_rel"; then
-		status=1
-	fi
-done < "$MANIFEST"
+link_manifest() {
+	_status=0
+	while IFS="$(printf '\t')" read -r repo_rel target_rel || [ -n "${repo_rel:-}" ]; do
+		case "${repo_rel:-}" in
+		''|'#'*) continue ;;
+		esac
+		if ! link_one "$repo_rel" "$target_rel"; then
+			_status=1
+		fi
+	done < "$MANIFEST"
+	return "$_status"
+}
 
-if [ -x "$REPO_ROOT/bin/install-ghostty-terminfo" ]; then
-	if ! "$REPO_ROOT/bin/install-ghostty-terminfo"; then
-		status=1
+init_submodules() {
+	if [ ! -f "$REPO_ROOT/.gitmodules" ]; then
+		return 0
+	fi
+
+	if ! command -v git >/dev/null 2>&1; then
+		printf '%s: error: git is required to initialize submodules\n' "$0" >&2
+		return 1
+	fi
+
+	git -C "$REPO_ROOT" submodule update --init --recursive
+}
+
+known_nvim_remote() {
+	_remote=$1
+	case "$_remote" in
+	git@github.com:connorcarpenter15/nvim.git) return 0 ;;
+	git@github.com:connorcarpenter15/nvim) return 0 ;;
+	https://github.com/connorcarpenter15/nvim.git) return 0 ;;
+	https://github.com/connorcarpenter15/nvim) return 0 ;;
+	../nvim.git) return 0 ;;
+	*) return 1 ;;
+	esac
+}
+
+prepare_nvim_target() {
+	if [ ! -d "$NVIM_SOURCE" ]; then
+		printf '%s: error: missing Neovim submodule at %s\n' "$0" "$NVIM_SOURCE" >&2
+		printf '  Run: git submodule update --init --recursive\n' >&2
+		return 1
+	fi
+
+	if [ ! -e "$NVIM_TARGET" ] && [ ! -L "$NVIM_TARGET" ]; then
+		return 0
+	fi
+
+	if [ -L "$NVIM_TARGET" ]; then
+		_link_dest=$(readlink "$NVIM_TARGET" || true)
+		if [ "$_link_dest" = "$NVIM_SOURCE" ]; then
+			printf 'unchanged (already linked): %s\n' "$NVIM_TARGET"
+			return 0
+		fi
+		if [ "$FORCE" -eq 1 ]; then
+			rm -f "$NVIM_TARGET"
+			printf 'removed foreign symlink (--force): %s -> %s\n' "$NVIM_TARGET" "$_link_dest"
+			return 0
+		fi
+		printf '%s: error: %s is a symlink to %s, not %s. Use --force to replace.\n' "$0" "$NVIM_TARGET" "$_link_dest" "$NVIM_SOURCE" >&2
+		return 1
+	fi
+
+	if [ -d "$NVIM_TARGET" ]; then
+		if command -v git >/dev/null 2>&1 && git -C "$NVIM_TARGET" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+			_remote=$(git -C "$NVIM_TARGET" remote get-url origin 2>/dev/null || true)
+			if known_nvim_remote "$_remote"; then
+				_dirty=$(git -C "$NVIM_TARGET" status --porcelain 2>/dev/null || true)
+				if [ -n "$_dirty" ] && [ "$FORCE" -ne 1 ]; then
+					printf '%s: error: %s has uncommitted changes; refusing to replace it with the dotfiles submodule.\n' "$0" "$NVIM_TARGET" >&2
+					printf '  Commit/stash those changes, move the directory aside, or run with --force to back it up first.\n' >&2
+					return 1
+				fi
+				backup_existing_path "$NVIM_TARGET"
+				return 0
+			fi
+		fi
+
+		if [ "$FORCE" -eq 1 ]; then
+			backup_existing_path "$NVIM_TARGET"
+			return 0
+		fi
+
+		printf '%s: error: %s already exists and is not the expected Neovim repo. Use --force to back it up and replace it.\n' "$0" "$NVIM_TARGET" >&2
+		return 1
+	fi
+
+	if [ "$FORCE" -eq 1 ]; then
+		backup_existing_path "$NVIM_TARGET"
+		return 0
+	fi
+
+	printf '%s: error: %s already exists and cannot be replaced safely. Use --force to back it up and replace it.\n' "$0" "$NVIM_TARGET" >&2
+	return 1
+}
+
+link_nvim_fallback() {
+	if [ -L "$NVIM_TARGET" ]; then
+		_link_dest=$(readlink "$NVIM_TARGET" || true)
+		if [ "$_link_dest" = "$NVIM_SOURCE" ]; then
+			return 0
+		fi
+	fi
+
+	mkdir -p "$(dirname "$NVIM_TARGET")"
+	ln -s "$NVIM_SOURCE" "$NVIM_TARGET"
+	printf 'linked: %s -> %s\n' "$NVIM_TARGET" "$NVIM_SOURCE"
+}
+
+detect_nix_system() {
+	_arch=$(uname -m 2>/dev/null || true)
+	_os=$(uname -s 2>/dev/null || true)
+
+	case "$_arch" in
+	arm64|aarch64) _cpu=aarch64 ;;
+	x86_64|amd64) _cpu=x86_64 ;;
+	*)
+		printf '%s: error: unsupported CPU architecture: %s\n' "$0" "$_arch" >&2
+		return 1
+		;;
+	esac
+
+	case "$_os" in
+	Darwin) _platform=darwin ;;
+	Linux) _platform=linux ;;
+	*)
+		printf '%s: error: unsupported operating system: %s\n' "$0" "$_os" >&2
+		return 1
+		;;
+	esac
+
+	printf '%s-%s\n' "$_cpu" "$_platform"
+}
+
+find_nix() {
+	if command -v nix >/dev/null 2>&1; then
+		command -v nix
+		return 0
+	fi
+
+	for nix_bin in \
+		/nix/var/nix/profiles/default/bin/nix \
+		"$HOME/.nix-profile/bin/nix"
+	do
+		if [ -x "$nix_bin" ]; then
+			printf '%s\n' "$nix_bin"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+run_home_manager() {
+	_nix_bin=$1
+	_system=$(detect_nix_system) || return 1
+	_run_user=${USER:-$(id -un 2>/dev/null || printf dotfiles)}
+
+	printf 'applying Home Manager configuration: %s\n' "$_system"
+	DOTFILES_DIR=$REPO_ROOT USER=$_run_user HOME=$HOME \
+		"$_nix_bin" --extra-experimental-features nix-command \
+		--extra-experimental-features flakes \
+		run "$REPO_ROOT#home-manager" -- \
+		switch --flake "$REPO_ROOT#$_system" --impure
+}
+
+print_nix_install_hint() {
+	printf '\nNix is not installed, so only dotfile symlinks were applied.\n' >&2
+	printf 'Install Nix, open a new shell, then rerun ./install to install packages with Home Manager.\n\n' >&2
+	printf 'Recommended installer:\n' >&2
+	printf "  curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --daemon\n\n" >&2
+	printf 'On Linux hosts where you cannot use the daemon installer:\n' >&2
+	printf "  curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon\n\n" >&2
+}
+
+install_ghostty_terminfo() {
+	if [ -x "$REPO_ROOT/bin/install-ghostty-terminfo" ]; then
+		"$REPO_ROOT/bin/install-ghostty-terminfo"
+	else
+		printf 'warning: skipping Ghostty terminfo install (missing helper)\n' >&2
+		return 0
+	fi
+}
+
+status=0
+
+if ! init_submodules; then
+	status=1
+fi
+
+if ! link_manifest; then
+	status=1
+fi
+
+if ! prepare_nvim_target; then
+	status=1
+fi
+
+if NIX_BIN=$(find_nix); then
+	if [ "$status" -eq 0 ]; then
+		if ! run_home_manager "$NIX_BIN"; then
+			status=1
+		fi
+	else
+		printf '%s: skipping Home Manager because earlier setup checks failed\n' "$0" >&2
 	fi
 else
-	printf 'warning: skipping Ghostty terminfo install (missing helper)\n' >&2
+	print_nix_install_hint
+	if [ "$status" -eq 0 ]; then
+		if ! link_nvim_fallback; then
+			status=1
+		fi
+	fi
+fi
+
+if ! install_ghostty_terminfo; then
+	status=1
 fi
 
 exit "$status"
