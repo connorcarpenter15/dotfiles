@@ -6,6 +6,7 @@ home/.shellrc	.shellrc
 home/.bash_profile	.bash_profile
 home/.bashrc	.bashrc
 home/.gitconfig	.gitconfig
+home/.tmux.conf	.tmux.conf
 home/.codex/AGENTS.md	.codex/AGENTS.md
 config/starship.toml	.config/starship.toml
 config/ghostty/config	.config/ghostty/config

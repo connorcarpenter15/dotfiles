@@ -54,6 +54,7 @@ let
     "btop"
     "git"
     "delta"
+    "tmux"
     "curl"
     "wget"
     "unzip"
@@ -113,6 +114,12 @@ in
   home.sessionVariables = {
     EDITOR = "nvim";
     NVM_DIR = "${config.home.homeDirectory}/.nvm";
+    TERMINFO_DIRS = lib.concatStringsSep ":" [
+      "${config.home.homeDirectory}/.terminfo"
+      "${config.home.profileDirectory}/share/terminfo"
+      "/usr/share/terminfo"
+      "/etc/terminfo"
+    ];
   };
 
   home.file = {
@@ -124,6 +131,7 @@ in
     ".bash_profile" = managedLink (linkSource "home/.bash_profile");
     ".bashrc" = managedLink (linkSource "home/.bashrc");
     ".gitconfig" = managedLink (linkSource "home/.gitconfig");
+    ".tmux.conf" = managedLink (linkSource "home/.tmux.conf");
     ".codex/AGENTS.md" = managedLink (linkSource "home/.codex/AGENTS.md");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");
     ".config/ghostty/config" = managedLink (linkSource "config/ghostty/config");

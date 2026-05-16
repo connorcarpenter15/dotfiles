@@ -276,9 +276,15 @@ run_home_manager() {
 	_nix_bin=$1
 	_system=$(detect_nix_system) || return 1
 	_run_user=${USER:-$(id -un 2>/dev/null || printf dotfiles)}
+	_nix_config='extra-experimental-features = nix-command flakes'
+
+	if [ -n "${NIX_CONFIG:-}" ]; then
+		_nix_config="${NIX_CONFIG}
+${_nix_config}"
+	fi
 
 	printf 'applying Home Manager configuration: %s\n' "$_system"
-	DOTFILES_DIR=$REPO_ROOT USER=$_run_user HOME=$HOME \
+	DOTFILES_DIR=$REPO_ROOT USER=$_run_user HOME=$HOME NIX_CONFIG=$_nix_config \
 		"$_nix_bin" --extra-experimental-features nix-command \
 		--extra-experimental-features flakes \
 		run "$REPO_ROOT#home-manager" -- \

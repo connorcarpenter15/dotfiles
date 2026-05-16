@@ -87,6 +87,7 @@ alias ns='nvim -c "lua require('\''persistence'\'').load()"'
 alias lg='lazygit'
 alias gs='git status -s'
 alias gl="git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
+alias ta='tmux attach-session'
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='trash -v'
@@ -97,6 +98,12 @@ alias pwsh='pwsh.exe'
 alias config='cd "$HOME/.config/nvim" && nvim'
 alias g++='g++ -std=c++20'
 alias mcserver='ssh -i "$HOME/.ssh/mudgies_server.key" ubuntu@141.148.62.216'
+
+t() {
+  _tmux_session=${1:-main}
+  tmux new-session -A -s "$_tmux_session"
+  unset _tmux_session
+}
 
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --color=always --icons=always --group-directories-first'
