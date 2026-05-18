@@ -8,5 +8,6 @@ home/.bashrc	.bashrc
 home/.gitconfig	.gitconfig
 home/.tmux.conf	.tmux.conf
 home/.codex/AGENTS.md	.codex/AGENTS.md
+home/.codex/config.toml	.codex/config.toml
 config/starship.toml	.config/starship.toml
 config/ghostty/config	.config/ghostty/config

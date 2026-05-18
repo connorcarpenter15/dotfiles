@@ -1,0 +1,77 @@
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+approvals_reviewer = "user"
+
+[projects."/home/connorc"]
+trust_level = "trusted"
+
+[projects."/home/connorc/dynamo-ai-workflows"]
+trust_level = "trusted"
+
+[projects."/home/connorc/dotfiles"]
+trust_level = "trusted"
+
+[mcp_servers.compute-session]
+command = "node"
+args = ["/home/connorc/workflows/tools/compute-session/launcher.js"]
+
+[mcp_servers.compute-session.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[mcp_servers.dynamo-deploy]
+command = "node"
+args = ["/home/connorc/workflows/tools/dynamo-deploy/index.js"]
+
+[mcp_servers.dynamo-deploy.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[mcp_servers.registry]
+command = "node"
+args = ["/home/connorc/workflows/tools/registry/index.js"]
+
+[mcp_servers.registry.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[mcp_servers.srt-slurm]
+command = "node"
+args = ["/home/connorc/workflows/tools/srt-slurm/index.js"]
+
+[mcp_servers.srt-slurm.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[mcp_servers.aiperf-mcp]
+command = "node"
+args = ["/home/connorc/workflows/tools/aiperf-mcp/index.js"]
+
+[mcp_servers.aiperf-mcp.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[mcp_servers.bash-mcp]
+command = "node"
+args = ["/home/connorc/workflows/tools/bash-mcp/index.js"]
+
+[mcp_servers.bash-mcp.env]
+CLAUDE_PLUGIN_ROOT = "/home/connorc/workflows"
+
+[plugins."teams@openai-curated"]
+enabled = true
+
+[plugins."outlook-email@openai-curated"]
+enabled = true
+
+[plugins."outlook-calendar@openai-curated"]
+enabled = true
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."google-drive@openai-curated"]
+enabled = true
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
+[notice]
+hide_full_access_warning = true
