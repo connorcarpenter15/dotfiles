@@ -7,8 +7,8 @@
   ];
 
   inputs = {
-    nixpkgs.url = "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz";
-    home-manager.url = "https://github.com/nix-community/home-manager/archive/master.tar.gz";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
