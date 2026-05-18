@@ -13,6 +13,9 @@ trust_level = "trusted"
 [projects."/home/connorc/dotfiles"]
 trust_level = "trusted"
 
+[projects."/home/connorc/rhino"]
+trust_level = "trusted"
+
 [mcp_servers.compute-session]
 command = "node"
 args = ["/home/connorc/workflows/tools/compute-session/launcher.js"]

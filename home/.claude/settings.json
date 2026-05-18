@@ -1,0 +1,17 @@
+{
+  "enabledPlugins": {
+    "dynamo-ai-workflows@dynamo-ai-workflows": true
+  },
+  "extraKnownMarketplaces": {
+    "dynamo-ai-workflows": {
+      "source": {
+        "source": "directory",
+        "path": "/home/connorc/workflows"
+      }
+    }
+  },
+  "theme": "dark",
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  }
+}

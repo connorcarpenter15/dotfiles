@@ -134,6 +134,8 @@ in
     ".tmux.conf" = managedLink (linkSource "home/.tmux.conf");
     ".codex/AGENTS.md" = managedLink (linkSource "home/.codex/AGENTS.md");
     ".codex/config.toml" = managedLink (linkSource "home/.codex/config.toml");
+    ".claude/CLAUDE.md" = managedLink (linkSource "home/.claude/CLAUDE.md");
+    ".claude/settings.json" = managedLink (linkSource "home/.claude/settings.json");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");
     ".config/ghostty/config" = managedLink (linkSource "config/ghostty/config");
     ".config/nvim" = managedLink (linkSource "external/nvim");
