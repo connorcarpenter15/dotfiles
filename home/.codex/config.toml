@@ -4,6 +4,9 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 approvals_reviewer = "user"
 
+[tui]
+vim_mode_default = true
+
 [projects."/home/connorc"]
 trust_level = "trusted"
 
