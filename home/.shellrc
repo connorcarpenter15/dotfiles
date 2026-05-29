@@ -85,6 +85,7 @@ alias n.='nvim .'
 alias pv='uv run nvim'
 alias ns='nvim -c "lua require('\''persistence'\'').load()"'
 alias lg='lazygit'
+alias claude='claude --permission-mode auto'
 alias gs='git status -s'
 alias gl="git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
 alias ta='tmux attach-session'
