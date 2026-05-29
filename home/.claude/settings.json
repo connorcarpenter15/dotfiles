@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash"
+    ],
+    "deny": [],
+    "defaultMode": "auto"
+  },
   "enabledPlugins": {
     "dynamo-ai-workflows@dynamo-ai-workflows": true
   },
@@ -10,8 +17,24 @@
       }
     }
   },
+  "sandbox": {
+    "enabled": false,
+    "failIfUnavailable": false,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": true,
+    "network": {
+      "allowAllUnixSockets": true
+    },
+    "filesystem": {
+      "allowWrite": [
+        "."
+      ]
+    },
+    "mode": "auto-allow"
+  },
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  }
+  "editorMode": "vim",
+  "verbose": true,
+  "skipAutoPermissionPrompt": true
 }

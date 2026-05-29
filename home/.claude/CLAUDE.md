@@ -1,5 +1,12 @@
 # Claude Guidance
 
+## Tools
+
+Always prefer the `mcp__bash-mcp__run` tool over the built-in `Bash` tool for
+running shell commands. Fall back to `Bash` only when `bash-mcp` cannot do the
+job (e.g. long-running commands needing `run_in_background`, or commands that
+hit the bash-mcp blocklist and are still legitimate to run).
+
 ## Git Commits
 
 Always use Conventional Commits for commit messages.

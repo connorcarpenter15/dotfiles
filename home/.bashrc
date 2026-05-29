@@ -1,11 +1,12 @@
 # Interactive Bash only
 case $- in
-  *i*) ;;
-  *) return ;;
+*i*) ;;
+*) return ;;
 esac
 
 # Shared aliases and environment
 [ -r "$HOME/.shellrc" ] && . "$HOME/.shellrc"
+[ -r "$HOME/.secrets" ] && . "$HOME/.secrets"
 alias so='source ~/.bashrc'
 
 # Completion
@@ -25,3 +26,6 @@ fi
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init bash)"
 fi
+
+# nvsec aws assume shell integration
+source /home/connorc/.nvsec/shell.sh
