@@ -25,6 +25,12 @@ trust_level = "trusted"
 [projects."/home/connorc/dynamo"]
 trust_level = "trusted"
 
+[projects.'"/home/connorc/fun-mode"']
+trust_level = "trusted"
+
+[projects."/home/connorc/fun-mode"]
+trust_level = "trusted"
+
 [mcp_servers.compute-session]
 command = "node"
 args = ["/home/connorc/workflows/tools/compute-session/launcher.js"]
