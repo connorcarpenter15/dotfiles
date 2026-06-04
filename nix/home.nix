@@ -138,6 +138,7 @@ in
     ".claude/settings.json" = managedLink (linkSource "home/.claude/settings.json");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");
     ".config/ghostty/config" = managedLink (linkSource "config/ghostty/config");
+    ".config/lazygit/config.yml" = managedLink (linkSource "config/lazygit/config.yml");
     ".config/nvim" = managedLink (linkSource "external/nvim");
   };
 }

@@ -13,3 +13,4 @@ home/.claude/CLAUDE.md	.claude/CLAUDE.md
 home/.claude/settings.json	.claude/settings.json
 config/starship.toml	.config/starship.toml
 config/ghostty/config	.config/ghostty/config
+config/lazygit/config.yml	.config/lazygit/config.yml
