@@ -9,6 +9,8 @@ home/.gitconfig	.gitconfig
 home/.tmux.conf	.tmux.conf
 home/.codex/AGENTS.md	.codex/AGENTS.md
 home/.codex/config.toml	.codex/config.toml
+home/.agents/skills/thermo-nuclear-code-quality-review	.agents/skills/thermo-nuclear-code-quality-review
+home/.agents/skills/wills-mega-review	.agents/skills/wills-mega-review
 home/.claude/CLAUDE.md	.claude/CLAUDE.md
 home/.claude/settings.json	.claude/settings.json
 config/starship.toml	.config/starship.toml

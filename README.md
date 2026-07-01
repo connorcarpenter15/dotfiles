@@ -90,8 +90,8 @@ These are sourced automatically when present.
 
 - `--overwrite-from-home`: if a managed single-file config in `$HOME` differs
   from this repo, copy home -> repo, then link.
-- `--force`: replace foreign symlinks and back up existing Neovim directories
-  before linking the submodule.
+- `--force`: keep the repository version, backing up divergent managed files,
+  foreign symlinks, and existing Neovim directories before linking.
 
 ## Manual Commands
 

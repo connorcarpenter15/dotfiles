@@ -134,6 +134,10 @@ in
     ".tmux.conf" = managedLink (linkSource "home/.tmux.conf");
     ".codex/AGENTS.md" = managedLink (linkSource "home/.codex/AGENTS.md");
     ".codex/config.toml" = managedLink (linkSource "home/.codex/config.toml");
+    ".agents/skills/thermo-nuclear-code-quality-review" =
+      managedLink (linkSource "home/.agents/skills/thermo-nuclear-code-quality-review");
+    ".agents/skills/wills-mega-review" =
+      managedLink (linkSource "home/.agents/skills/wills-mega-review");
     ".claude/CLAUDE.md" = managedLink (linkSource "home/.claude/CLAUDE.md");
     ".claude/settings.json" = managedLink (linkSource "home/.claude/settings.json");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");
