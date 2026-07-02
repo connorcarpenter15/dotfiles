@@ -29,3 +29,15 @@ type as the branch prefix instead, such as `feat/`, `fix/`, `docs/`,
 Always use a Conventional Commit-style pull request title:
 `type(scope): description` when a scope is useful, otherwise
 `type: description`. Never include `codex` in a pull request title.
+
+## Cluster Filesystem Safety
+
+Never run `find`, recursive `grep`, `du`, or another recursive filesystem
+traversal over `/home`, `/lustre`, or any other shared filesystem root from a
+cluster frontend or login node. Read-only commands can still saturate a shared
+NFS client and disrupt other users.
+
+Run recursive searches on a compute node inside a scheduler allocation, and
+scope them to a known user, project, or scratch directory. If no compute
+allocation is available, use a non-recursive inventory mechanism or ask before
+proceeding; do not fall back to a broad frontend-node scan.
