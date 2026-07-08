@@ -146,6 +146,8 @@ in
       managedLink (linkSource "home/.agents/skills/general-review");
     ".agents/skills/deep-code-review" =
       managedLink (linkSource "home/.agents/skills/deep-code-review");
+    ".agents/skills/linear-issue-writer" =
+      managedLink (linkSource "home/.agents/skills/linear-issue-writer");
     ".claude/CLAUDE.md" = managedLink (linkSource "home/.claude/CLAUDE.md");
     ".claude/settings.json" = managedLink (linkSource "home/.claude/settings.json");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");

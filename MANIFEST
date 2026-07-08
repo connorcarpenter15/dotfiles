@@ -15,6 +15,7 @@ home/.agents/skills/full-code-review	.agents/skills/full-code-review
 home/.agents/skills/phone-a-friend	.agents/skills/phone-a-friend
 home/.agents/skills/general-review	.agents/skills/general-review
 home/.agents/skills/deep-code-review	.agents/skills/deep-code-review
+home/.agents/skills/linear-issue-writer	.agents/skills/linear-issue-writer
 home/.claude/CLAUDE.md	.claude/CLAUDE.md
 home/.claude/settings.json	.claude/settings.json
 config/starship.toml	.config/starship.toml
