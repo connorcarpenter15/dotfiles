@@ -138,6 +138,14 @@ in
       managedLink (linkSource "home/.agents/skills/thermo-nuclear-code-quality-review");
     ".agents/skills/wills-mega-review" =
       managedLink (linkSource "home/.agents/skills/wills-mega-review");
+    ".agents/skills/full-code-review" =
+      managedLink (linkSource "home/.agents/skills/full-code-review");
+    ".agents/skills/phone-a-friend" =
+      managedLink (linkSource "home/.agents/skills/phone-a-friend");
+    ".agents/skills/general-review" =
+      managedLink (linkSource "home/.agents/skills/general-review");
+    ".agents/skills/deep-code-review" =
+      managedLink (linkSource "home/.agents/skills/deep-code-review");
     ".claude/CLAUDE.md" = managedLink (linkSource "home/.claude/CLAUDE.md");
     ".claude/settings.json" = managedLink (linkSource "home/.claude/settings.json");
     ".config/starship.toml" = managedLink (linkSource "config/starship.toml");
