@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Creation Discipline"
+  short_description: "Keep tests minimal and regression-focused"
+  default_prompt: "Use $test-creation-discipline to decide whether this change warrants a new test."
