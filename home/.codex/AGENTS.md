@@ -41,3 +41,15 @@ Run recursive searches on a compute node inside a scheduler allocation, and
 scope them to a known user, project, or scratch directory. If no compute
 allocation is available, use a non-recursive inventory mechanism or ask before
 proceeding; do not fall back to a broad frontend-node scan.
+
+## DLCluster Storage Safety
+
+Never read from, write to, mount, or create directories under
+`/mnt/cifs/home/swdl-fw-infra`. That CIFS mount is reserved exclusively for the
+DLFW GitLab HPC Runner; it is not user or benchmark scratch space.
+
+Before writing persistent data on DLCluster, discover and verify an approved
+per-user or project scratch path using the compute-session scratch-path tooling
+and the `scratch-space` skill. Do not guess a shared path. Do not remove or
+modify existing content under the reserved CIFS mount without explicit owner
+authorization.
