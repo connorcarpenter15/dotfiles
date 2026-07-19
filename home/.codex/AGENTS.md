@@ -1,5 +1,13 @@
 # Codex Guidance
 
+## Communication Preferences
+
+- Be concise.
+- Prefer bullet points over paragraphs.
+- Prefer actionable items over narrative analysis.
+- The user will redirect if the response is too verbose.
+- Never hard-wrap Markdown. Write each paragraph and list item as one continuous line, relying on soft wrap; use newlines only to separate paragraphs, list items, headings, code fences, and tables.
+
 ## Git Commits
 
 Always use Conventional Commits for commit messages.
