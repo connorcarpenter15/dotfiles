@@ -20,6 +20,9 @@ Always sign off commits with `git commit --signoff` or `git commit -s` so each
 commit includes a `Signed-off-by: Name <email>` trailer. When amending a commit,
 use `git commit --amend --signoff`.
 
+Never amend an existing commit or force-push a branch unless the user explicitly
+asks for that history rewrite.
+
 ## Git Publishing
 
 When `main` allows direct commits and I am the repository's only contributor,
